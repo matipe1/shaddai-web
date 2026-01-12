@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export function Hero() {
     return(
         <div className="relative bg-neutral-900 h-125">
@@ -21,9 +23,12 @@ export function Hero() {
           </p>
           <div className="mt-10">
             {/* Este botón scrolleará hacia abajo (por ahora no hace nada) */}
-            <a href="/catalogo" className="inline-block bg-amber-500 border border-transparent py-3 px-8 rounded-md font-bold text-neutral-900 hover:bg-amber-400 transition">
+            <Link
+                to="/catalogo" 
+                className="inline-block bg-amber-500 border border-transparent py-3 px-8 rounded-md font-bold text-neutral-900 hover:bg-amber-400 transition"
+            >
               Ver Catálogo
-            </a>
+            </Link>
           </div>
         </div>
       </div>

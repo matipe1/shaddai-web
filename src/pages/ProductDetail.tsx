@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "../supabase/client";
-import { Navbar } from "../components/Navbar";
 import { Footer } from "../sections/Footer";
 import { ArrowLeft, MessageCircle, ShieldCheck, Truck } from "lucide-react";
 
@@ -61,8 +60,6 @@ export function ProductDetail() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Navbar />
-
       <main className="grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         
         {/* Botón Volver */}

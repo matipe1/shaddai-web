@@ -47,7 +47,7 @@ export function Navbar() {
               <div className="flex items-center gap-4">
                 <Link 
                     to="/agregar" 
-                    className="flex items-center gap-2 px-4 py-2 bg-amber-600 text-black text-sm font-bold rounded-full hover:bg-amber-500 transition-all shadow hover:shadow-amber-500/20 transform hover:-translate-y-0.5"
+                    className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-black text-sm font-bold rounded-full hover:bg-amber-500 transition-all shadow hover:shadow-amber-500/20 transform hover:-translate-y-0.5"
                 >
                     <PlusCircle className="h-4 w-4" />
                     <span className="hidden sm:inline">Agregar</span>

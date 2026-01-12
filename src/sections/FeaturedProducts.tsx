@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabase/client";
 import { ProductCard } from "../components/ProductCard";
+import { Link } from "react-router-dom";
 
 interface Product {
   id: number;
@@ -69,9 +70,12 @@ export function FeaturedProducts() {
       {/* Botón para ir al catálogo completo (futuro) */}
       {products.length > 0 && (
         <div className="text-center mt-12">
-          <a href="/catalogo" className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-amber-500 bg-neutral-900 hover:bg-neutral-800 transition">
-            Ver todos los productos →
-          </a>
+          <Link
+                to="/catalogo" 
+                className="inline-block bg-amber-500 border border-transparent py-3 px-8 rounded-md font-bold text-neutral-900 hover:bg-amber-400 transition"
+            >
+              Ver todos los productos →
+            </Link>
         </div>
       )}
     </section>
