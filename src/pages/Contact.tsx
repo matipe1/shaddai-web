@@ -1,5 +1,3 @@
-import { Navbar } from "../components/Navbar";
-import { Footer } from "../sections/Footer";
 import { Mail, Phone, MapPin, Send, Instagram, Facebook, Clock } from "lucide-react";
 
 // 1. Importamos las librerías necesarias
@@ -40,8 +38,6 @@ export function Contact() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Navbar />
-
       <main className="grow">
         {/* Encabezado */}
         <div className="bg-neutral-900 py-16 text-center">
@@ -206,8 +202,6 @@ export function Contact() {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }
