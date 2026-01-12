@@ -1,9 +1,10 @@
-import { Mail, Phone, MapPin, Send, Instagram, Facebook, Clock } from "lucide-react";
+import { Mail, Phone, MapPin, Send, Instagram, Clock } from "lucide-react";
 
 // 1. Importamos las librerías necesarias
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { globalInfo, mediaInfo } from "../data";
 
 // 2. Definimos el esquema de validación
 const contactSchema = z.object({
@@ -55,8 +56,8 @@ export function Contact() {
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">Hablemos</h2>
                 <p className="text-gray-600 leading-relaxed">
-                  ¿Tienes dudas sobre algún termo Stanley? ¿Buscas equipar tu local? 
-                  Escríbenos y un asesor de SHADDAI se pondrá en contacto contigo.
+                  ¿Tienes dudas sobre algún termo? ¿Buscas equipar tu local? 
+                  Escríbenos y nos pondremos en contacto contigo.
                 </p>
               </div>
 
@@ -68,7 +69,7 @@ export function Contact() {
                   <div>
                     <h3 className="font-bold text-gray-900">Ubicación</h3>
                     <p className="text-gray-600">Córdoba Capital, Argentina</p>
-                    <p className="text-sm text-gray-500">Envíos a todo el país</p>
+                    <p className="text-sm text-gray-500">Envíos dentro de Córdoba</p>
                   </div>
                 </div>
 
@@ -78,7 +79,7 @@ export function Contact() {
                   </div>
                   <div>
                     <h3 className="font-bold text-gray-900">WhatsApp Ventas</h3>
-                    <p className="text-gray-600">+54 9 351 123-4567</p>
+                    <p className="text-gray-600">{globalInfo.phoneNumber}</p>
                     <p className="text-sm text-gray-500">Respuesta inmediata</p>
                   </div>
                 </div>
@@ -89,7 +90,7 @@ export function Contact() {
                   </div>
                   <div>
                     <h3 className="font-bold text-gray-900">Email</h3>
-                    <p className="text-gray-600">ventas@shaddaistore.com</p>
+                    <p className="text-gray-600">{globalInfo.email}</p>
                   </div>
                 </div>
 
@@ -108,11 +109,8 @@ export function Contact() {
               <div className="pt-6 border-t border-gray-200">
                 <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-4">Síguenos</h3>
                 <div className="flex gap-4">
-                  <a href="#" className="bg-neutral-900 text-white p-3 rounded-full hover:bg-amber-500 hover:text-white transition-all transform hover:-translate-y-1">
+                  <a href={mediaInfo.instagramLink} target="_blank" className="bg-neutral-900 text-white p-3 rounded-full hover:bg-amber-500 hover:text-white transition-all transform hover:-translate-y-1">
                     <Instagram className="h-5 w-5" />
-                  </a>
-                  <a href="#" className="bg-neutral-900 text-white p-3 rounded-full hover:bg-amber-500 hover:text-white transition-all transform hover:-translate-y-1">
-                    <Facebook className="h-5 w-5" />
                   </a>
                 </div>
               </div>
@@ -159,11 +157,10 @@ export function Contact() {
                     className={`w-full px-4 py-3 rounded-lg border outline-none transition-all bg-gray-50 focus:bg-white
                         ${errors.subject ? "border-red-500 focus:ring-red-200" : "border-gray-300 focus:ring-2 focus:ring-amber-500 focus:border-amber-500"}`}
                   >
-                    <option value="">Selecciona una opción</option>
-                    <option value="Consulta General">Consulta General</option>
-                    <option value="Ventas Mayoristas">Ventas Mayoristas</option>
-                    <option value="Estado de mi pedido">Estado de mi pedido</option>
-                    <option value="Reclamo">Garantía / Reclamo</option>
+                    <option value="" disabled>Selecciona una opción</option>
+                    {globalInfo.affairs.map((affair) => (
+                      <option value={affair}>{affair}</option>
+                    ))};
                   </select>
                   {errors.subject && <p className="text-red-500 text-xs mt-1">{errors.subject.message}</p>}
                 </div>
