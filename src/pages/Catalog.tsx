@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "../supabase/client";
 import { ProductCard } from "../components/ProductCard";
 import { Search, ArrowUpDown, FilterX, ChevronLeft, ChevronRight } from "lucide-react";
+import { globalInfo } from "../data";
 
 interface Product {
   id: number;
@@ -14,8 +15,8 @@ interface Product {
 
 type SortOption = 'newest' | 'price-asc' | 'price-desc';
 
-const CATEGORIES = ["Todos", "Termos", "Mates", "Bombillas", "Tecnología", "Accesorios", "Otros"];
-const PRODUCTS_PER_PAGE = 6; // Cantidad de productos por página
+const CATEGORIES = ["Todos"].concat(globalInfo.categories);
+const PRODUCTS_PER_PAGE = 6;
 
 export function Catalog() {
   // Estado de los productos de la página ACTUAL

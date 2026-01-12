@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { globalInfo } from "../data";
 
 export function Hero() {
     return(
@@ -7,7 +8,7 @@ export function Hero() {
       <div className="absolute inset-0">
         <img
           className="w-full h-full object-cover opacity-40"
-          src="https://images.unsplash.com/photo-1674506458439-65441effe779?q=80&w=1588&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          src={globalInfo.heroImageLink}
           alt="Fondo de mate"
         />
       </div>

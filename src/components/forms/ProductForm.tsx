@@ -2,15 +2,8 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { supabase } from "../../supabase/client";
+import { globalInfo } from "../../data";
 
-const CATEGORIES = [
-  "Termos",
-  "Mates",
-  "Bombillas",
-  "Tecnología",
-  "Accesorios",
-  "Otros",
-] as const;
 
 const productSchema = z.object({
   title: z
@@ -22,7 +15,7 @@ const productSchema = z.object({
     .number()
     .positive("El precio debe ser positivo")
     .max(999999, "Precio demasiado alto"),
-  category: z.enum(CATEGORIES, {
+  category: z.enum(globalInfo.categories, {
     message: "Seleccione una categoría válida",
   }),
   file: z
@@ -58,7 +51,7 @@ export function ProductForm({ onSuccess, onError }: ProductFormProps) {
   } = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
     defaultValues: {
-      category: "Termos", // Valor por defecto
+      category: globalInfo.categories[0],
     },
   });
 
@@ -167,7 +160,7 @@ export function ProductForm({ onSuccess, onError }: ProductFormProps) {
               errors.category ? "border-red-500" : "border-gray-300"
             }`}
           >
-            {CATEGORIES.map((cat) => (
+            {globalInfo.categories.map((cat) => (
               <option key={cat} value={cat}>
                 {cat}
               </option>
