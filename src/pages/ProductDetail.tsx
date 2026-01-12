@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "../supabase/client";
-import { Footer } from "../sections/Footer";
 import { ArrowLeft, MessageCircle, ShieldCheck, Truck } from "lucide-react";
 
 interface Product {
@@ -124,8 +123,6 @@ export function ProductDetail() {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }
