@@ -5,11 +5,12 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { globalInfo, mediaInfo } from "../data";
+import { sendEmail } from "../services/email.service";
 
 // 2. Definimos el esquema de validación
 const contactSchema = z.object({
   name: z.string().min(2, "El nombre debe tener al menos 2 letras"),
-  email: z.string().email("Ingresa un email válido"),
+  email: z.email("Ingresa un email válido"),
   subject: z.string().min(1, "Por favor selecciona un asunto"),
   message: z.string().min(10, "El mensaje debe tener al menos 10 caracteres")
 });
@@ -28,13 +29,32 @@ export function Contact() {
     resolver: zodResolver(contactSchema)
   });
 
+  const formatDate = (date: Date): string => {
+    return date.toLocaleDateString('es-ES', {
+      weekday: 'long',
+      day: 'numeric', 
+      month: 'long',
+      year: 'numeric'
+    });
+  };
+
   // 4. Función de envío (Solo se ejecuta si la validación pasa)
   const onSubmit = async (data: ContactForm) => {
-    // Simulamos una promesa para que isSubmitting funcione automágicamente
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    
-    alert(`¡Gracias ${data.name}! Hemos recibido tu mensaje sobre "${data.subject}".`);
-    reset(); // Limpia el formulario
+    try {
+      await sendEmail({
+        name: data.name,
+        email: data.email,
+        subject: data.subject,
+        message: data.message,
+        time: formatDate(new Date()),
+      });
+
+      alert(`¡Gracias ${data.name}! Tu mensaje ha sido enviado correctamente. Te responderemos a la brevedad.`);
+      reset();
+    } catch (error) {
+      console.error("Error al enviar email:", error);
+      alert("Error al enviar el mensaje. Por favor intenta nuevamente más tarde o por otro medio.");
+    }
   };
 
   return (
