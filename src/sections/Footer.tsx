@@ -32,12 +32,12 @@ export function Footer() {
           <ul className="space-y-2">
             <li>Córdoba, Argentina</li>
             <li>
-              <a href={`mailto:${globalInfo.email}`} className="text-gray-400 hover:text-amber-400"><span className="sr-only">{mediaInfo.instagram}</span>
+              <a href={`mailto:${globalInfo.email}`} target="_blank" className="text-gray-400 hover:text-amber-400"><span className="sr-only">{mediaInfo.instagram}</span>
                 {globalInfo.email}
               </a>
             </li>
             <li className="flex space-x-4 mt-4">
-              <a href={mediaInfo.instagramLink} className="text-gray-400 hover:text-amber-400"><span className="sr-only">{mediaInfo.instagram}</span>
+              <a href={mediaInfo.instagramLink} target="_blank" className="text-gray-400 hover:text-amber-400"><span className="sr-only">{mediaInfo.instagram}</span>
                 <Instagram className="h-5 w-5" />
               </a>
             </li>
