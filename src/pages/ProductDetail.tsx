@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom"; // Agregar useNavigate
 import { supabase } from "../supabase/client";
 import { ArrowLeft, MessageCircle, ShieldCheck, Truck, Edit3, Trash2 } from "lucide-react"; // Agregar Edit3, Trash2
+import { useAuth } from "../hooks/useAuth";
 
 interface Product {
   id: number;
@@ -18,6 +19,8 @@ export function ProductDetail() {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false); // Estado para el loading del delete
+
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -107,32 +110,36 @@ export function ProductDetail() {
             
             {/* Imagen */}
             <div className="h-96 md:h-150 bg-gray-100 relative">
-              <div className="absolute top-3 right-3 flex gap-2 z-20">
-                {/* Botón Editar */}
-                <button
-                  onClick={handleEdit}
-                  className="bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-full shadow-lg transition-all duration-200 transform hover:scale-110 active:scale-95"
-                >
-                  <Edit3 className="h-5 w-5" />
-                </button>
+              {
+                user ? (
+                  <div className="absolute top-3 right-3 flex gap-2 z-20">
+                    {/* Botón Editar */}
+                    <button
+                      onClick={handleEdit}
+                      className="bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-full shadow-lg transition-all duration-200 transform hover:scale-110 active:scale-95"
+                    >
+                      <Edit3 className="h-5 w-5" />
+                    </button>
 
-                {/* Botón Eliminar */}
-                <button
-                  onClick={handleDelete}
-                  disabled={deleting}
-                  className={`text-white p-3 rounded-full shadow-lg transition-all duration-200 transform hover:scale-110 active:scale-95
-                    ${deleting 
-                      ? 'bg-gray-400 cursor-not-allowed' 
-                      : 'bg-red-500 hover:bg-red-600'
-                    }`}
-                >
-                  {deleting ? (
-                    <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  ) : (
-                    <Trash2 className="h-5 w-5" />
-                  )}
-                </button>
-              </div>
+                    {/* Botón Eliminar */}
+                    <button
+                      onClick={handleDelete}
+                      disabled={deleting}
+                      className={`text-white p-3 rounded-full shadow-lg transition-all duration-200 transform hover:scale-110 active:scale-95
+                        ${deleting 
+                          ? 'bg-gray-400 cursor-not-allowed' 
+                          : 'bg-red-500 hover:bg-red-600'
+                        }`}
+                    >
+                      {deleting ? (
+                        <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      ) : (
+                        <Trash2 className="h-5 w-5" />
+                      )}
+                    </button>
+                  </div>
+                ) : ""
+              }
 
               <img 
                 src={product.image_url} 
