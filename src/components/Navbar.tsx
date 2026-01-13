@@ -22,7 +22,7 @@ export function Navbar() {
                     SHADDAI
                 </span>
                 <span className="text-[10px] font-medium tracking-[0.4em] text-amber-500 uppercase mt-1 ml-0.5">
-                    Importados
+                    Importado
                 </span>
             </div>
           </Link>
