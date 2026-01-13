@@ -7,6 +7,7 @@ import { Catalog } from "./pages/Catalog";
 import { Footer } from "./sections/Footer";
 import { Contact } from "./pages/Contact";
 import { ProductDetail } from "./pages/ProductDetail";
+import { EditProduct } from "./pages/EditProduct";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/catalogo" element={<Catalog />} />
           <Route path="/producto/:id" element={<ProductDetail />} />
+          <Route path="/productos/edit/:id" element={<EditProduct />} />
           <Route path="/contacto" element={<Contact />} />
           <Route path="/login" element={<LoginForm />} />
           <Route path="/agregar" element={<AddProduct />} />

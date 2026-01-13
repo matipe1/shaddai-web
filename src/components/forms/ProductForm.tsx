@@ -4,43 +4,59 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { supabase } from "../../supabase/client";
 import { globalInfo } from "../../data";
 
-
-const productSchema = z.object({
-  title: z
-    .string()
-    .min(1, "El título es obligatorio")
-    .max(100, "Máximo 100 caracteres"),
-  description: z.string().max(500, "Máximo 500 caracteres"),
-  price: z
-    .number()
-    .positive("El precio debe ser positivo")
-    .max(999999, "Precio demasiado alto"),
-  category: z.enum(globalInfo.categories, {
-    message: "Seleccione una categoría válida",
-  }),
-  file: z
-    .instanceof(File, { message: "Debe seleccionar una imagen" })
-    .refine(
-      (file) => file.size <= 4 * 1024 * 1024,
-      "La imagen debe ser menor a 4MB"
-    )
-    .refine(
-      (file) =>
-        ["image/jpeg", "image/jpg", "image/png", "image/webp"].includes(
-          file.type
+// ✅ Schema dinámico según el modo
+const createProductSchema = (isEditMode: boolean = false) => {
+  return z.object({
+    title: z
+      .string()
+      .min(1, "El título es obligatorio")
+      .max(100, "Máximo 100 caracteres"),
+    description: z.string().max(500, "Máximo 500 caracteres"),
+    price: z
+      .number()
+      .positive("El precio debe ser positivo")
+      .max(999999, "Precio demasiado alto"),
+    category: z.enum(globalInfo.categories, {
+      message: "Seleccione una categoría válida",
+    }),
+    file: isEditMode
+      ? z.instanceof(File).optional() // ✅ Opcional en modo edición
+      : z
+        .instanceof(File, { message: "Debe seleccionar una imagen" })
+        .refine(
+          (file) => file.size <= 4 * 1024 * 1024,
+          "La imagen debe ser menor a 4MB"
+        )
+        .refine(
+          (file) =>
+            ["image/jpeg", "image/jpg", "image/png", "image/webp"].includes(
+              file.type
+            ),
+          "Solo se permiten imágenes JPG, PNG o WebP"
         ),
-      "Solo se permiten imágenes JPG, PNG o WebP"
-    ),
-});
+  });
+};
 
-type ProductFormData = z.infer<typeof productSchema>;
+interface Product {
+  id: number;
+  title: string;
+  description: string;
+  price: number;
+  category: string;
+  image_url: string; // ✅ Cambiar de File a string
+}
 
 interface ProductFormProps {
   onSuccess?: () => void;
   onError?: (error: string) => void;
+  initialData?: Product | null;
+  isEditMode?: boolean;
 }
 
-export function ProductForm({ onSuccess, onError }: ProductFormProps) {
+export function ProductForm({ onSuccess, onError, initialData, isEditMode = false }: ProductFormProps) {
+  const productSchema = createProductSchema(isEditMode);
+  type ProductFormData = z.infer<typeof productSchema>;
+
   const {
     register,
     handleSubmit,
@@ -50,50 +66,80 @@ export function ProductForm({ onSuccess, onError }: ProductFormProps) {
     watch,
   } = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
-    defaultValues: {
+    defaultValues: initialData ? {
+      title: initialData.title,
+      price: initialData.price,
+      description: initialData.description,
+      category: initialData.category,
+      // ✅ No incluir file en defaultValues para modo edición
+    } : {
       category: globalInfo.categories[0],
-    },
+    }
   });
 
   const selectedFile = watch("file");
 
   const onSubmit = async (data: ProductFormData) => {
     try {
-      // 1. Subir imagen al Bucket 'products'
-      const fileExt = data.file.name.split(".").pop();
-      const fileName = `${Date.now()}.${fileExt}`;
-      const filePath = `${fileName}`;
+      let imageUrl = initialData?.image_url; // ✅ Usar imagen existente por defecto
 
-      const { error: uploadError } = await supabase.storage
-        .from("products")
-        .upload(filePath, data.file);
+      // ✅ Solo subir nueva imagen si se seleccionó una
+      if (data.file) {
+        const fileExt = data.file.name.split(".").pop();
+        const fileName = `${Date.now()}.${fileExt}`;
+        const filePath = `${fileName}`;
 
-      if (uploadError) throw uploadError;
+        const { error: uploadError } = await supabase.storage
+          .from("products")
+          .upload(filePath, data.file);
 
-      // 2. Obtener la URL pública
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("products").getPublicUrl(filePath);
+        if (uploadError) throw uploadError;
 
-      // 3. Guardar en la base de datos
-      const { error: dbError } = await supabase.from("products").insert([
-        {
-          title: data.title,
-          price: data.price,
-          image_url: publicUrl,
-          category: data.category,
-        },
-      ]);
+        // Obtener la URL pública de la nueva imagen
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from("products").getPublicUrl(filePath);
 
-      if (dbError) throw dbError;
+        imageUrl = publicUrl;
+      }
 
-      reset(); // Limpiar formulario
+      if (isEditMode && initialData) {
+        // ✅ SOLO actualizar - no insertar
+        const { error } = await supabase
+          .from('products')
+          .update({
+            title: data.title,
+            price: data.price,
+            description: data.description,
+            category: data.category,
+            image_url: imageUrl, // ✅ Actualizar imagen solo si hay una nueva
+          })
+          .eq('id', initialData.id);
+
+        if (error) throw error;
+
+      } else {
+        // ✅ SOLO crear nuevo producto
+        const { error } = await supabase
+          .from('products')
+          .insert([{
+            title: data.title,
+            price: data.price,
+            image_url: imageUrl,
+            description: data.description,
+            category: data.category
+          }]);
+
+        if (error) throw error;
+        reset(); // Solo limpiar en modo crear
+      }
+
       onSuccess?.(); // Callback de éxito
+
     } catch (error) {
       console.error("Error:", error);
-      const errorMessage =
-        error instanceof Error ? error.message : "Error desconocido";
-      onError?.(errorMessage); // Callback de error
+      const errorMessage = error instanceof Error ? error.message : "Error desconocido";
+      onError?.(errorMessage);
     }
   };
 
@@ -121,20 +167,18 @@ export function ProductForm({ onSuccess, onError }: ProductFormProps) {
           Descripción del Producto
         </label>
         <textarea
-        {...register("description")}
+          {...register("description")}
           rows={4}
           className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-amber-500 bg-white resize-none"
           placeholder="Detalles técnicos, capacidad, material..."
-        ></textarea>
+        />
       </div>
 
       {/* Grid para Precio y Categoría */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Campo Precio */}
         <div>
-          <label className="block text-gray-700 font-bold mb-2">
-            Precio ($)
-          </label>
+          <label className="block text-gray-700 font-bold mb-2">Precio ($)</label>
           <input
             {...register("price", { valueAsNumber: true })}
             type="number"
@@ -149,11 +193,9 @@ export function ProductForm({ onSuccess, onError }: ProductFormProps) {
           )}
         </div>
 
-        {/* Campo Categoría (NUEVO) */}
+        {/* Campo Categoría */}
         <div>
-          <label className="block text-gray-700 font-bold mb-2">
-            Categoría
-          </label>
+          <label className="block text-gray-700 font-bold mb-2">Categoría</label>
           <select
             {...register("category")}
             className={`w-full p-3 border rounded focus:outline-none focus:border-amber-500 bg-white cursor-pointer ${
@@ -167,16 +209,29 @@ export function ProductForm({ onSuccess, onError }: ProductFormProps) {
             ))}
           </select>
           {errors.category && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.category.message}
-            </p>
+            <p className="text-red-500 text-sm mt-1">{errors.category.message}</p>
           )}
         </div>
       </div>
 
       {/* Campo Archivo */}
       <div>
-        <label className="block text-gray-700 font-bold mb-2">Foto</label>
+        <label className="block text-gray-700 font-bold mb-2">
+          Foto {isEditMode && <span className="text-sm font-normal text-gray-500">(opcional)</span>}
+        </label>
+
+        {/* ✅ Mostrar imagen actual en modo edición */}
+        {isEditMode && initialData?.image_url && !selectedFile && (
+          <div className="mb-3 p-3 bg-gray-50 rounded border">
+            <p className="text-sm text-gray-600 mb-2">Imagen actual:</p>
+            <img
+              src={initialData.image_url}
+              alt="Imagen actual"
+              className="w-20 h-20 object-cover rounded"
+            />
+          </div>
+        )}
+
         <input
           type="file"
           accept="image/*"
@@ -210,7 +265,10 @@ export function ProductForm({ onSuccess, onError }: ProductFormProps) {
             : "bg-neutral-900 hover:bg-neutral-800 hover:shadow-lg"
         }`}
       >
-        {isSubmitting ? "Subiendo..." : "Guardar Producto"}
+        {isSubmitting
+          ? (isEditMode ? 'Actualizando...' : 'Agregando...')
+          : (isEditMode ? 'Actualizar Producto' : 'Agregar Producto')
+        }
       </button>
     </form>
   );
