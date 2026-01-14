@@ -6,8 +6,10 @@ import { Link } from "react-router-dom";
 interface Product {
   id: number;
   title: string;
+  description: string;
   price: number;
-  image_url: string;
+  category: string;
+  images: string[];
 }
 
 export function FeaturedProducts() {
@@ -17,12 +19,11 @@ export function FeaturedProducts() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        // Pedimos los últimos 6 productos para la Home
         const { data, error } = await supabase
           .from("products")
           .select("*")
           .order("created_at", { ascending: false })
-          .limit(6);
+          .limit(6); // Ultimos 6 productos
 
         if (error) throw error;
         setProducts(data || []);
@@ -42,16 +43,11 @@ export function FeaturedProducts() {
       className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16"
     >
       <div className="text-center mb-12">
-        <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
-          Productos Destacados
-        </h2>
-        <p className="mt-4 text-xl text-gray-500">
-          Lo último y lo mejor de nuestro stock.
-        </p>
+        <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">Productos Destacados</h2>
       </div>
 
       {loading ? (
-        <div className="text-center py-10">Cargando lo mejor... 🧉</div>
+        <div className="text-center py-10">Cargando... 🧉</div>
       ) : products.length === 0 ? (
         <p className="text-center text-gray-500">Pronto tendremos novedades.</p>
       ) : (
@@ -62,7 +58,7 @@ export function FeaturedProducts() {
                 id={product.id}
                 title={product.title}
                 price={product.price}
-                image_url={product.image_url} />
+                image_url={product.images[0]} />
           ))}
         </div>
       )}

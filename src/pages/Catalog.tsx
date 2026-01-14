@@ -7,10 +7,10 @@ import { globalInfo } from "../data";
 interface Product {
   id: number;
   title: string;
+  description: string;
   price: number;
-  image_url: string;
-  category?: string;
-  created_at: string;
+  category: string;
+  images: string[];
 }
 
 type SortOption = 'newest' | 'price-asc' | 'price-desc';
@@ -210,7 +210,7 @@ export function Catalog() {
                     id={product.id}
                     title={product.title}
                     price={product.price}
-                    image_url={product.image_url}
+                    image_url={product.images[0]}
                 />
                 ))}
             </div>
