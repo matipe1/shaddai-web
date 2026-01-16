@@ -109,7 +109,7 @@ export function Catalog() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* ENCABEZADO */}
-        <div className="flex flex-col md:flex-row justify-between items-end md:items-center mb-10 gap-4">
+        <div className="flex flex-col md:flex-row justify-between items-center md:items-center mb-10 gap-4">
           <div>
             <h2 className="text-3xl font-bold text-gray-900 tracking-tight">Catálogo Completo</h2>
             <p className="text-gray-500 mt-1">
@@ -203,7 +203,7 @@ export function Catalog() {
         ) : (
           // Grilla de Productos
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
                 {products.map((product) => (
                 <ProductCard 
                     key={product.id}
