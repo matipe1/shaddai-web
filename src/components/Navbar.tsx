@@ -11,19 +11,21 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-20 items-center">
           
-          {/* LOGO SHADDAI */}
-          <Link to="/" className="flex items-center gap-3 group">
-            {/* Icono del logo con efecto al pasar el mouse */}
-            <div className="bg-amber-500/10 p-2 rounded-full group-hover:bg-amber-500/20 transition duration-300">
-                <ShoppingBag className="h-6 w-6 text-amber-500" />
+          {/* LOGO SHADDAI - Versión compacta para móviles */}
+          <Link to="/" className="flex items-center gap-2 md:gap-3 group">
+            {/* Icono más pequeño en móviles */}
+            <div className="bg-amber-500/10 p-1.5 md:p-2 rounded-full group-hover:bg-amber-500/20 transition duration-300">
+              <ShoppingBag className="h-5 w-5 md:h-6 md:w-6 text-amber-500" />
             </div>
             <div className="flex flex-col">
-                <span className="text-2xl font-bold tracking-[0.2em] text-white leading-none">
-                    SHADDAI
-                </span>
-                <span className="text-[10px] font-medium tracking-[0.4em] text-amber-500 uppercase mt-1 ml-0.5">
-                    Importado
-                </span>
+              {/* Texto principal más pequeño en móviles */}
+              <span className="text-lg md:text-2xl font-bold tracking-[0.15em] md:tracking-[0.2em] text-white leading-none">
+                SHADDAI
+              </span>
+              {/* Subtítulo oculto en móviles muy pequeños, visible desde sm */}
+              <span className="hidden sm:block text-[8px] md:text-[10px] font-medium tracking-[0.3em] md:tracking-[0.4em] text-amber-500 uppercase mt-0.5 md:mt-1 ml-0.5">
+                Importado
+              </span>
             </div>
           </Link>
 
