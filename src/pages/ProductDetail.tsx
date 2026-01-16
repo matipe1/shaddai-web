@@ -108,17 +108,40 @@ export function ProductDetail() {
         </Link>
 
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-          {/* APERTURA DEL GRID */}
-          <div className="grid grid-cols-1 md:grid-cols-2">
+          <div className="grid grid-cols-1 lg:grid-cols-2">
             
             {/* === COLUMNA IZQUIERDA: Galería === */}
-            <div className="bg-gray-100 flex flex-col">
-              <div className="h-96 md:h-150 relative w-full">
+            {/* Quitamos bg-gray-100 para eliminar el bloque gris de abajo */}
+            <div className="flex flex-col border-b lg:border-b-0 lg:border-r border-gray-100">
+              
+              {/* IMAGEN PRINCIPAL */}
+              {/* Usamos 'aspect-square' o una altura fija controlada para mantener proporción */}
+              <div className="relative w-full aspect-square md:aspect-4/3 lg:h-150 lg:aspect-auto overflow-hidden group">
+                
+                {/* FONDO DIFUMINADO (Solo visible si la imagen no llena todo) */}
+                <div className="absolute inset-0">
+                   <img 
+                    src={selectedImage || product.images?.[0]}
+                    alt=""
+                    className="w-full h-full object-cover blur-xl scale-110 opacity-50"
+                  />
+                </div>
+
+                {/* IMAGEN REAL (Flotando encima, centrada y sin recortar) */}
+                <div className="relative z-10 w-full h-full flex items-center justify-center">
+                  <img 
+                    src={selectedImage || product.images?.[0]}
+                    alt={product.title}
+                    className="max-w-full max-h-full object-contain drop-shadow-xl transition-transform duration-500 group-hover:scale-105" 
+                  />
+                </div>
+
+                {/* Botones Admin */}
                 {user && (
-                    <div className="absolute top-3 right-3 flex gap-2 z-20">
+                    <div className="absolute top-4 right-4 flex gap-2 z-30">
                       <button
                         onClick={handleEdit}
-                        className="bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-full shadow-lg transition-all duration-200 transform hover:scale-110 active:scale-95"
+                        className="bg-white/90 backdrop-blur-sm hover:bg-blue-50 text-blue-600 hover:text-blue-800 p-2 rounded-full shadow-lg transition-all hover:scale-110"
                       >
                         <Edit3 className="h-5 w-5" />
                       </button>
@@ -126,52 +149,47 @@ export function ProductDetail() {
                       <button
                         onClick={handleDelete}
                         disabled={deleting}
-                        className={`text-white p-3 rounded-full shadow-lg transition-all duration-200 transform hover:scale-110 active:scale-95 ${deleting 
-                            ? 'bg-gray-400 cursor-not-allowed' 
-                            : 'bg-red-500 hover:bg-red-600' }`} >
-                        {deleting
-                          ? (<div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>)
-                          : (<Trash2 className="h-5 w-5" />)
-                        }
+                        className={`p-2 rounded-full shadow-lg transition-all hover:scale-110 
+                          ${deleting ? 'bg-gray-200 cursor-not-allowed' : 'bg-white/90 backdrop-blur-sm hover:bg-red-50 text-red-500 hover:text-red-700'}`}
+                      >
+                        {deleting ? <div className="h-5 w-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div> : <Trash2 className="h-5 w-5" />}
                       </button>
                     </div>
                 )}
-
-                {/* Imagen Grande */}
-                <img 
-                  src={selectedImage}
-                  alt={product.title}
-                  className="w-full h-full object-cover" 
-                />
               </div>
 
               {/* Tira de Miniaturas */}
               {product.images && product.images.length > 1 && (
-                <div className="flex gap-2 p-4 overflow-x-auto bg-white border-t scrollbar-hide">
-                  {product.images.map((img, index) => (
-                      <button
-                        key={index}
-                        onClick={() => setSelectedImage(img)}
-                        className={`relative w-20 h-20 shrink-0 rounded-md overflow-hidden border-2 transition-all
-                        ${selectedImage === img ? "border-amber-500 ring-2 ring-amber-200" : "border-transparent opacity-70 hover:opacity-100"}`}>
-                          <img
-                            src={img}
-                            alt={`thumb-${index}`}
-                            className="w-full h-full object-cover"
-                          />
-                      </button>
-                    ))}
+                <div className="p-4 bg-white">
+                  <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide justify-center md:justify-start">
+                    {product.images.map((img, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setSelectedImage(img)}
+                          className={`relative w-20 h-20 shrink-0 rounded-lg overflow-hidden border-2 transition-all cursor-pointer
+                          ${selectedImage === img 
+                              ? "border-amber-500 ring-2 ring-amber-100 opacity-100" 
+                              : "border-gray-200 opacity-60 hover:opacity-100 hover:border-gray-300"}`}
+                        >
+                            <img
+                              src={img}
+                              alt={`thumb-${index}`}
+                              className="w-full h-full object-cover"
+                            />
+                        </button>
+                      ))}
+                  </div>
                 </div>
               )}
             </div>
             
-            {/* === COLUMNA DERECHA: Info del producto === */}
-            <div className="p-8 md:p-12 flex flex-col justify-center">
+            {/* === COLUMNA DERECHA: Info === */}
+            <div className="p-8 lg:p-12 flex flex-col justify-center bg-white">
               <span className="text-amber-600 font-bold tracking-wider text-sm uppercase mb-2">
                 {product.category || "Importado"}
               </span>
               
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4 leading-tight">
                 {product.title}
               </h1>
 
@@ -179,11 +197,13 @@ export function ProductDetail() {
                 {formatPrice(product.price)}
               </div>
 
-              <div className="prose prose-gray mb-8 text-gray-600">
-                <p>{product.description || "Sin descripción detallada disponible."}</p>
+              <div className="prose prose-gray mb-8 text-gray-600 leading-relaxed">
+                <p className="whitespace-pre-line">
+                  {product.description || "Sin descripción detallada disponible."}
+                </p>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-4 mt-auto">
                 <button 
                   onClick={handleWhatsAppClick}
                   className="w-full bg-green-600 text-white font-bold py-4 px-6 rounded-xl hover:bg-green-700 transition flex items-center justify-center gap-2 shadow-lg hover:shadow-green-500/30 transform hover:-translate-y-1"
@@ -193,19 +213,19 @@ export function ProductDetail() {
                 </button>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 mt-8 pt-8 border-t border-gray-100">
-                <div className="flex items-center gap-3">
-                  <Truck className="h-8 w-8 text-amber-500" />
-                  <span className="text-sm text-gray-600 font-medium">Envíos a Córdoba Capital</span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8 pt-8 border-t border-gray-100">
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-50">
+                  <Truck className="h-6 w-6 text-amber-500" />
+                  <span className="text-sm text-gray-700 font-medium">Envíos a Córdoba Capital</span>
                 </div>
-                <div className="flex items-center gap-3">
-                  <ShieldCheck className="h-8 w-8 text-amber-500" />
-                  <span className="text-sm text-gray-600 font-medium">Garantizá la calidad</span>
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-50">
+                  <ShieldCheck className="h-6 w-6 text-amber-500" />
+                  <span className="text-sm text-gray-700 font-medium">Garantizá la calidad</span>
                 </div>
               </div>
             </div>
 
-          </div> {/* <--- AQUÍ CIERRA EL GRID AHORA (Correcto) */}
+          </div>
         </div>
       </main>
     </div>
