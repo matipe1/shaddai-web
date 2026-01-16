@@ -103,7 +103,7 @@ export function ProductDetail() {
       <main className="grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         
         {/* Botón Volver */}
-        <Link to="/" className="inline-flex items-center text-gray-500 hover:text-amber-600 mb-8 transition">
+        <Link to="/catalogo" className="inline-flex items-center text-gray-500 hover:text-amber-600 mb-8 transition">
           <ArrowLeft className="h-4 w-4 mr-2" /> Volver al catálogo
         </Link>
 
