@@ -19,10 +19,10 @@ export function ProductCard({ id, title, price, image_url }: Props) {
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 group flex flex-col h-full">
-      {/* Hacemos que la imagen también sea clickeable */}
+      {/* Imagen más alta y mejor proporción */}
       <Link
         to={`/producto/${id}`}
-        className="h-64 overflow-hidden bg-gray-100 relative block"
+        className="h-72 md:h-80 overflow-hidden bg-gray-100 relative block"
       >
         <img
           src={image_url}
@@ -32,14 +32,13 @@ export function ProductCard({ id, title, price, image_url }: Props) {
       </Link>
 
       <div className="p-4 flex flex-col grow">
-        <h3 className="text-lg font-medium text-gray-800 mb-2 truncate">
+        <h3 className="text-lg font-medium text-gray-800 mb-2 line-clamp-2">
           {title}
         </h3>
         <div className="mt-auto flex justify-between items-center">
           <span className="text-xl font-bold text-amber-600">
             {formatPrice(price)}
           </span>
-          {/* El botón ahora es un Link */}
           <Link
             to={`/producto/${id}`}
             className="bg-neutral-900 text-white px-3 py-1.5 rounded text-sm hover:bg-neutral-800 transition"
