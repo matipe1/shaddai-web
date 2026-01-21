@@ -52,10 +52,25 @@ export function EditProduct() {
     fetchProduct();
   }, [id]);
 
+  // Marcar que estamos en página de admin
+  useEffect(() => {
+    sessionStorage.setItem('lastAdminPage', 'edit');
+    return () => {
+      const timer = setTimeout(() => {
+        sessionStorage.removeItem('lastAdminPage');
+      }, 100);
+      clearTimeout(timer);
+    }
+  }, []);
+
   const handleSuccess = () => {
     setNotification({ type: 'success', message: '¡Producto actualizado con éxito!' });
+    
+    // Marcar que venimos de edición
+    sessionStorage.setItem('productDetailOrigin', 'edit');
+    
     setTimeout(() => {
-      navigate(`/producto/${id}`); // Volver al detalle del producto
+      navigate(`/producto/${id}`);
     }, 1500);
   };
 

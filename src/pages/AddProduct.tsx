@@ -8,6 +8,18 @@ export function AddProduct() {
   const navigate = useNavigate();
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
+  // Marcar que estamos en página de admin
+  useEffect(() => {
+    sessionStorage.setItem('lastAdminPage', 'add');
+    return () => {
+      // Opcional: limpiar al salir si no se navegó a ProductDetail
+      const timer = setTimeout(() => {
+        sessionStorage.removeItem('lastAdminPage');
+      }, 100);
+      clearTimeout(timer);
+    };
+  }, []);
+
   // Protección de ruta
   useEffect(() => {
     if (!user) {
@@ -17,7 +29,11 @@ export function AddProduct() {
 
   const handleSuccess = () => {
     setNotification({ type: 'success', message: '¡Producto agregado con éxito!' });
-    // Auto-ocultar notificación después de 3 segundos
+    
+    // Si quieres navegar al producto creado, descomenta estas líneas:
+    // sessionStorage.setItem('productDetailOrigin', 'add');
+    // setTimeout(() => navigate(`/producto/${newProductId}`), 1500);
+    
     setTimeout(() => setNotification(null), 3000);
   };
 

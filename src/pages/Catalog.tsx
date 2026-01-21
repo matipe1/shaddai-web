@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { supabase } from "../supabase/client";
 import { ProductCard } from "../components/ProductCard";
 import { Search, ArrowUpDown, FilterX, ChevronLeft, ChevronRight } from "lucide-react";
@@ -19,23 +20,90 @@ const CATEGORIES = ["Todos"].concat(globalInfo.categories);
 const PRODUCTS_PER_PAGE = 6;
 
 export function Catalog() {
-  // Estado de los productos de la página ACTUAL
-  const [products, setProducts] = useState<Product[]>([]);
+  const [searchParams, setSearchParams] = useSearchParams();
   
-  // Estados de control
+  // Estados
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("Todos");
-  const [sortOrder, setSortOrder] = useState<SortOption>('newest');
-
-  // Estados de Paginación
-  const [page, setPage] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
 
-  // Cada vez que cambiamos un filtro, volvemos a la página 1
-  useEffect(() => {
+  // Inicializar estados desde URL params
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || "");
+  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || "Todos");
+  const [sortOrder, setSortOrder] = useState<SortOption>((searchParams.get('sort') as SortOption) || 'newest');
+  const [page, setPage] = useState(Number(searchParams.get('page')) || 1);
+
+  // Función para actualizar URL params
+  const updateSearchParams = (updates: Record<string, string | number>) => {
+    const newParams = new URLSearchParams(searchParams);
+    
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value && value !== '') {
+        newParams.set(key, String(value));
+      } else {
+        newParams.delete(key);
+      }
+    });
+
+    setSearchParams(newParams);
+  };
+
+  // Handlers corregidos
+  const handleSearchChange = (term: string) => {
+    setSearchTerm(term);
     setPage(1);
-  }, [searchTerm, selectedCategory, sortOrder]);
+    updateSearchParams({ 
+      search: term,
+      category: selectedCategory === "Todos" ? "" : selectedCategory,
+      sort: sortOrder,
+      page: '1' 
+    });
+  };
+
+  const handleCategoryChange = (category: string) => {
+    setSelectedCategory(category);
+    setPage(1);
+    updateSearchParams({ 
+      search: searchTerm,
+      category: category === "Todos" ? "" : category,
+      sort: sortOrder,
+      page: '1' 
+    });
+  };
+
+  const handleSortChange = (sort: SortOption) => {
+    setSortOrder(sort);
+    setPage(1);
+    updateSearchParams({ 
+      search: searchTerm,
+      category: selectedCategory === "Todos" ? "" : selectedCategory,
+      sort: sort,
+      page: '1' 
+    });
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+    updateSearchParams({ 
+      search: searchTerm,
+      category: selectedCategory === "Todos" ? "" : selectedCategory,
+      sort: sortOrder,
+      page: String(newPage) 
+    });
+  };
+
+  useEffect(() => {
+    const urlSearchTerm = searchParams.get('search') || "";
+    const urlCategory = searchParams.get('category') || "Todos";
+    const urlSort = (searchParams.get('sort') as SortOption) || 'newest';
+    const urlPage = Number(searchParams.get('page')) || 1;
+
+    // Solo actualizar si los valores son diferentes para evitar loops
+    if (urlSearchTerm !== searchTerm) setSearchTerm(urlSearchTerm);
+    if (urlCategory !== selectedCategory) setSelectedCategory(urlCategory);
+    if (urlSort !== sortOrder) setSortOrder(urlSort);
+    if (urlPage !== page) setPage(urlPage);
+  }, [searchParams]); // ✅ SOLO depende de searchParams
 
   // EFECTO PRINCIPAL: Carga de datos desde Supabase
   useEffect(() => {
@@ -122,7 +190,7 @@ export function Catalog() {
             {CATEGORIES.map((cat) => (
                 <button
                     key={cat}
-                    onClick={() => setSelectedCategory(cat)}
+                    onClick={() => handleCategoryChange(cat)}
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border ${
                         selectedCategory === cat
                             ? "bg-neutral-900 text-white border-neutral-900 shadow-md transform scale-105"
@@ -145,7 +213,7 @@ export function Catalog() {
                 placeholder="Buscar..."
                 className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 sm:text-sm"
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => handleSearchChange(e.target.value)}
               />
               {searchTerm && (
                 <button 
@@ -163,7 +231,7 @@ export function Catalog() {
                 </div>
                 <select
                     value={sortOrder}
-                    onChange={(e) => setSortOrder(e.target.value as SortOption)}
+                    onChange={(e) => handleSortChange(e.target.value as SortOption)}
                     className="block w-full pl-10 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm rounded-lg bg-white cursor-pointer"
                 >
                     <option value="newest">Más Nuevos</option>
@@ -219,7 +287,7 @@ export function Catalog() {
             {totalPages > 1 && (
                 <div className="flex justify-center items-center gap-4 py-4">
                     <button
-                        onClick={() => setPage(p => Math.max(1, p - 1))}
+                        onClick={() => handlePageChange(Math.max(1, page - 1))}
                         disabled={page === 1}
                         className="p-2 rounded-full border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition"
                     >
@@ -231,7 +299,7 @@ export function Catalog() {
                     </span>
 
                     <button
-                        onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                        onClick={() => handlePageChange(Math.min(totalPages, page + 1))}
                         disabled={page === totalPages}
                         className="p-2 rounded-full border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition"
                     >

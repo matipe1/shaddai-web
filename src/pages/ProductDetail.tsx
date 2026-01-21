@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom"; // Agregar useLocation
 import { supabase } from "../supabase/client";
 import { ArrowLeft, MessageCircle, ShieldCheck, Truck, Edit3, Trash2 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
@@ -16,6 +16,7 @@ interface Product {
 export function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation(); // Agregar esta línea
 
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
@@ -49,6 +50,16 @@ export function ProductDetail() {
 
     fetchProduct();
   }, [id]);
+
+  // Agregar este useEffect en ProductDetail.tsx después del useEffect existente
+  useEffect(() => {
+    // Limpiar el origen después de un tiempo (por si el usuario no usa el botón volver)
+    const timer = setTimeout(() => {
+      sessionStorage.removeItem('productDetailOrigin');
+    }, 30000); // 30 segundos
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('es-AR', {
@@ -95,6 +106,40 @@ export function ProductDetail() {
     }
   };
 
+  const handleBack = () => {
+    // 1. PRIORIDAD ALTA: Origen explícito desde navegación de admin
+    const origin = sessionStorage.getItem('productDetailOrigin');
+    
+    if (origin === 'edit' || origin === 'add') {
+      sessionStorage.removeItem('productDetailOrigin');
+      navigate('/catalogo');
+      return;
+    }
+
+    // 2. PRIORIDAD ALTA: Estado del catálogo preservado
+    if (location.state?.from === 'catalog' && location.state?.catalogParams) {
+      navigate(`/catalogo${location.state.catalogParams}`);
+      return;
+    }
+
+    // 3. PRIORIDAD MEDIA: Detectar si viene de admin por sessionStorage
+    const lastAdminPage = sessionStorage.getItem('lastAdminPage');
+    if (lastAdminPage === 'add' || lastAdminPage === 'edit') {
+      sessionStorage.removeItem('lastAdminPage');
+      navigate('/catalogo');
+      return;
+    }
+
+    // 4. PRIORIDAD BAJA: Verificar historial corto (URL directa)
+    if (window.history.length <= 2) {
+      navigate('/catalogo');
+      return;
+    }
+
+    // 5. FALLBACK: Navegación atrás normal
+    navigate(-1);
+  };
+
   if (loading) return <div className="text-center mt-20">Cargando producto...</div>;
   if (!product) return <div className="text-center mt-20">Producto no encontrado.</div>;
 
@@ -103,9 +148,11 @@ export function ProductDetail() {
       <main className="grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         
         {/* Botón Volver */}
-        <Link to="/catalogo" className="inline-flex items-center text-gray-500 hover:text-amber-600 mb-8 transition">
-          <ArrowLeft className="h-4 w-4 mr-2" /> Volver al catálogo
-        </Link>
+        <button 
+          onClick={handleBack}
+          className="inline-flex items-center text-gray-500 hover:text-amber-600 mb-8 transition" >
+            <ArrowLeft className="h-4 w-4 mr-2" /> Volver al catálogo
+        </button>
 
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-2">

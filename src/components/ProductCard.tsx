@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 interface Props {
   id: number;
@@ -8,6 +8,8 @@ interface Props {
 }
 
 export function ProductCard({ id, title, price, image_url }: Props) {
+  const location = useLocation();
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("es-AR", {
       style: "currency",
@@ -19,9 +21,12 @@ export function ProductCard({ id, title, price, image_url }: Props) {
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 group flex flex-col h-full">
-      {/* Imagen más alta y mejor proporción */}
       <Link
         to={`/producto/${id}`}
+        state={{
+          from: "catalog",
+          catalogParams: location.search,
+        }}
         className="h-72 md:h-80 overflow-hidden bg-gray-100 relative block"
       >
         <img
@@ -41,6 +46,10 @@ export function ProductCard({ id, title, price, image_url }: Props) {
           </span>
           <Link
             to={`/producto/${id}`}
+            state={{
+              from: "catalog",
+              catalogParams: location.search,
+            }}
             className="bg-neutral-900 text-white px-3 py-1.5 rounded text-sm hover:bg-neutral-800 transition"
           >
             Ver detalle
